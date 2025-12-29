@@ -1,11 +1,3 @@
----
-title: AI Document Assistant
-emoji: 🧠
-colorFrom: indigo
-colorTo: blue
-sdk: docker
-pinned: false
----
 
 # 📄 DocuMind AI — Secure RAG Document Assistant
 

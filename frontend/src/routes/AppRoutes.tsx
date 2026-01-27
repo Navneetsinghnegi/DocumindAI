@@ -1,16 +1,22 @@
 import { Route,Routes,Navigate } from "react-router-dom"
-import Home from "../pages/Auth"
-import AuthLayout from "../components/auth/AuthLayout"
+import Auth from "../pages/Auth"
 import Dashboard from "../pages/Dashboard"
+import ProtectedRoute from "./ProtectedRoute"
 
 const AppRoutes = () => {
   return (
     <Routes>
 
-        <Route path="/" element={<Navigate to="/home" replace/>}></Route>
+        <Route path="/" element={<Navigate to="/auth" replace/>}></Route>
         
-        <Route path="/home" element={<Home/>}></Route>
-        <Route path="/dashboard" element={<Dashboard/>}></Route>
+        <Route path="/auth" element={<Auth/>}></Route>
+        <Route path="/dashboard" element={
+          <ProtectedRoute>
+            <Dashboard/>
+          </ProtectedRoute>
+          }>
+
+        </Route>
 
     </Routes>
   )

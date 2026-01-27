@@ -4,6 +4,8 @@ from app.schemas.auth import RegisterRequest, LoginRequest, TokenResponse
 from app.services.auth_service import register_user, authenticate_user
 from app.core.database import get_db
 from fastapi.security import OAuth2PasswordRequestForm
+
+
 router= APIRouter(prefix="/auth", tags=["Auth"])
 
 @router.post("/register")

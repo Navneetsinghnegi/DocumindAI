@@ -3,29 +3,65 @@ import AuthLayout from "../components/auth/AuthLayout";
 import RightContent from "../components/auth/RightContent";
 import { useNavigate } from "react-router-dom";
 import type { FormEvent } from "react";
-
+import { loginUser } from "../api/auth/loginAuth";
+import { registerUser } from "../api/auth/registerAuth";
 
 type Authmode = "signup" | "login";
 
-
-
-
-const Home = () => {
+const Auth = () => {
     const navigate = useNavigate();
     const [mode, setMode] = useState<Authmode>("signup");
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
+    const [confirmPassword, setConfirmPassword] = useState("");
 
-    const handleSubmit=(e: FormEvent<HTMLFormElement>)=>{
+    const handleSubmit= async (e: FormEvent<HTMLFormElement>)=>{
         e.preventDefault();
-
+        if(isSignup && password!=confirmPassword){
+            setError("Passwords do not match");
+            return;
+        }
+        setError(
+            isSignup? "Email already exists"
+            : "Invalid email or password"
+        )
         setIsLoading(true);
         setError(null);
 
-        setTimeout(()=>{
-            setIsLoading(false)
-            navigate("/dashboard")
-        },2000);
+        
+        /* Login fetch */
+        try{
+            if(isSignup){
+                if(password !=confirmPassword){
+                    setError("Passwords do not match");
+                    setIsLoading(false);
+                    return;
+                }
+
+                await registerUser(email,password);
+
+                const data = await loginUser(email,password);
+
+                localStorage.setItem("access_token",data.access_token);
+
+                navigate("/dashboard");
+            }
+            else{
+                const data  = await loginUser(email,password);
+
+                localStorage.setItem("access_token",data.access_token);
+                navigate("/dashboard");
+
+            }
+            
+        }catch(err:any){
+            setError(err.message);
+        }finally{
+            setIsLoading(false);
+        }
+       
     }
     
     const isSignup = mode ==="signup";
@@ -61,18 +97,18 @@ const Home = () => {
                                     Email
                                     
                                 </label>
-                                <input disabled={isLoading} type="email" placeholder="you@example.com" className={`bg-gray-300  h-7 px-2 py-4 content-start w-full ${error ? "bg-gray-300  h-7 px-2 py-4 content-start w-full border-3 border-red-700" : ""}` }/>
+                                <input onChange={(e)=>{setEmail(e.target.value)}} disabled={isLoading} type="email" placeholder="you@example.com" className={`bg-gray-300  h-7 px-2 py-4 content-start w-full ${error ? "bg-gray-300  h-7 px-2 py-4 content-start w-full border-3 border-red-700" : ""}` }/>
                             </div>
-
+                            {/* password */}
                             <div className="flex flex-col gap-1">
                                 <label className="font-semibold">Password</label>
-                                <input disabled={isLoading} type="password" placeholder="••••••••" className={`bg-gray-300 h-7 px-2 w-full ${ error ? isSignup ?"" : "bg-gray-300 h-7 px-2 w-full border-3 border-red-700" : "" }`} />
+                                <input onChange={(e)=>{setPassword(e.target.value)}} disabled={isLoading} type="password" placeholder="••••••••" className={`bg-gray-300 h-7 px-2 w-full ${ error ? isSignup ?"" : "bg-gray-300 h-7 px-2 w-full border-3 border-red-700" : "" }`} />
                             </div>
-
+                            {/* Confirm Password */}
                             {isSignup && (
                                 <>
                                     <label className="font-semibold">Confirm Password</label>
-                                    <input disabled={isLoading} type="password" placeholder="••••••••" className="bg-gray-300 h-7 px-2 w-full"/>
+                                    <input onChange={(e)=>{setConfirmPassword(e.target.value)}} disabled={isLoading} type="password" placeholder="••••••••" className="bg-gray-300 h-7 px-2 w-full"/>
                                 </>
                             )}
 
@@ -106,16 +142,12 @@ const Home = () => {
                                     }
                                 </p>
                     </div>
-                 
-
+                </div>
             
-                
-            </div>
-            
-        </RightContent>
+            </RightContent>
         </AuthLayout>
         
     );
 }
 
-export default Home
+export default Auth

@@ -1,19 +1,19 @@
+import { api } from "./http";
+
+
 export const registerUser = async (email:string,password:string)=>{
-    const response = await fetch("http://localhost:8000/api/v1/auth/register",{
-        method:"POST",
-        headers:{
-            "Content-Type": "application/json",
-        },
-        body:JSON.stringify({
-            email,password,
-        })
-
-    });
-
-    if(!response.ok){
-        const errorData = await response.json();
+    try{
+            const response = await api.post(
+                "/auth/register",
+                {email,password},
+                    
+                
+                
+            )
+            return response.data;
+    }
+    catch(error:any){
+        const errorData = error.response?.data.detail;
         throw new Error(errorData.detail || "Registration failed");
     }
-
-    return response.json();
 } 

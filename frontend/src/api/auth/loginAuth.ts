@@ -1,3 +1,6 @@
+import { api } from "./http";
+
+
 interface AuthResponse{
     access_token:string,
     token_type:string,
@@ -14,24 +17,25 @@ export async function loginUser(email:string , password:string): Promise<AuthRes
     formData.append("username",email);
     formData.append("password",password);
 
-    const response = await fetch("http://localhost:8000/api/v1/auth/login",{
-        method: "POST",
-        headers: {
-            "content-type" : "application/x-www-form-urlencoded",
-        },
-        body: formData.toString(),
-    });
+    try{
+            const response = await api.post(
+                "/auth/login",
+                formData,{
+                    headers: {
+                        "Content-Type": "applications/x.www-form.urlencoded",
+                    },
+                }
+            );
+            return response.data;
+    }
+    catch(error:any){
+        
+        const errorData = (await error.response.data) as AuthError; 
 
-    if(!response.ok){
-        const errorData = (await response.json()) as AuthError; 
-
-        const errorMessage = typeof errorData.detail==="string"
+        const errorMessage = typeof errorData?.detail==="string"
         ? errorData.detail : "Login Failed";
 
         throw new Error(errorMessage);
     }
-
     
-
-    return (await response.json()) as AuthResponse;
 }
